@@ -1,3 +1,4 @@
+class_name TileHandler
 extends Node
 
 
@@ -5,7 +6,7 @@ extends Node
 @onready var world_map : TileMap = %WorldMap
 
 
-func _get_unit_move_info() -> UnitMoveInfo:
+func get_pointed_coord() -> Vector2i:
 	var zoom = camera.zoom
 	var viewport = get_viewport()
 	var half_screen = Vector2(viewport.size.x / 2, viewport.size.y / 2)

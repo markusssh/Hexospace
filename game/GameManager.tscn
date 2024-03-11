@@ -19,6 +19,10 @@ texture_region_size = Vector2i(128, 128)
 1:0/next_alternative_id = 2
 1:0/0 = 0
 1:0/0/custom_data_0 = 1
+0:1/0 = 0
+1:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6kya1"]
 texture = ExtResource("4_ax4pr")
@@ -74,4 +78,5 @@ offset_bottom = 23.0
 script = ExtResource("6_vgxik")
 
 [node name="TileHandler" type="Node" parent="."]
+unique_name_in_owner = true
 script = ExtResource("7_uqn8y")
