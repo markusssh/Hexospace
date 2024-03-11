@@ -1,0 +1,12 @@
+[gd_scene load_steps=4 format=3 uid="uid://c5ljhtncl7apn"]
+
+[ext_resource type="Script" path="res://AppManager.gd" id="1_4wagy"]
+[ext_resource type="PackedScene" uid="uid://cq3fknkneg7w1" path="res://game/GameManager.tscn" id="1_7ti4d"]
+[ext_resource type="PackedScene" uid="uid://bqn324w201tr5" path="res://game/gui/menu/Staring Menu/StartingMenuScene.tscn" id="2_e0xj6"]
+
+[node name="AppManager" type="Node"]
+script = ExtResource("1_4wagy")
+
+[node name="StartingMenuScene" parent="." instance=ExtResource("2_e0xj6")]
+
+[node name="GameManager" parent="." instance=ExtResource("1_7ti4d")]

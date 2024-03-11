@@ -1,0 +1,45 @@
+[gd_scene load_steps=8 format=3 uid="uid://cq3fknkneg7w1"]
+
+[ext_resource type="Script" path="res://game/game_manager.gd" id="1_gogm2"]
+[ext_resource type="PackedScene" uid="uid://co6dqnc3xvfdd" path="res://game/gui/menu/Esc Menu/EscMenuScene.tscn" id="3_o72uj"]
+[ext_resource type="Script" path="res://game/game_camera.gd" id="4_qoa1l"]
+[ext_resource type="Texture2D" uid="uid://dx557ymyqse5s" path="res://game/grid.png" id="5_fikkq"]
+[ext_resource type="Script" path="res://game/world_map.gd" id="6_qxs7c"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_2urds"]
+texture = ExtResource("5_fikkq")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+1:0/0 = 0
+1:1/0 = 0
+0:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_wnnbk"]
+tile_shape = 3
+tile_size = Vector2i(127, 127)
+terrain_set_0/mode = 0
+sources/0 = SubResource("TileSetAtlasSource_2urds")
+
+[node name="GameManager" type="Node2D"]
+process_mode = 3
+script = ExtResource("1_gogm2")
+
+[node name="GameCamera" type="Camera2D" parent="." node_paths=PackedStringArray("world_map")]
+process_mode = 1
+position = Vector2(576, 324)
+script = ExtResource("4_qoa1l")
+world_map = NodePath("../WorldMap")
+
+[node name="WorldMap" type="TileMap" parent="."]
+unique_name_in_owner = true
+process_mode = 1
+position = Vector2(-1, 0)
+tile_set = SubResource("TileSet_wnnbk")
+format = 2
+script = ExtResource("6_qxs7c")
+
+[node name="GUI" type="CanvasLayer" parent="."]
+process_mode = 3
+
+[node name="EscMenuScene" parent="GUI" instance=ExtResource("3_o72uj")]
+unique_name_in_owner = true

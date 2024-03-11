@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3 uid="uid://co6dqnc3xvfdd"]
+
+[ext_resource type="Script" path="res://game/gui/menu/esc_menu/esc_menu.gd" id="1_wddfe"]
+[ext_resource type="Theme" uid="uid://df0v3ynbnm40g" path="res://game/gui/themes/button_theme.tres" id="2_o010h"]
+
+[node name="EscMenuScene" type="Control"]
+process_mode = 2
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wddfe")
+
+[node name="ScreenPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BoxPanel" type="Panel" parent="ScreenPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -258.0
+offset_top = -314.0
+offset_right = 258.0
+offset_bottom = 314.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScreenPanel/BoxPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -223.0
+offset_top = -296.0
+offset_right = 223.0
+offset_bottom = 296.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_o010h")
+alignment = 1
+
+[node name="ContinueButton" type="Button" parent="ScreenPanel/BoxPanel/VBoxContainer"]
+layout_mode = 2
+text = "Continue"
+
+[node name="SaveButton" type="Button" parent="ScreenPanel/BoxPanel/VBoxContainer"]
+layout_mode = 2
+text = "Save"
+
+[node name="LoadButton" type="Button" parent="ScreenPanel/BoxPanel/VBoxContainer"]
+layout_mode = 2
+text = "Load"
+
+[node name="QuitButton" type="Button" parent="ScreenPanel/BoxPanel/VBoxContainer"]
+layout_mode = 2
+text = "Quit"
+
+[connection signal="pressed" from="ScreenPanel/BoxPanel/VBoxContainer/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="ScreenPanel/BoxPanel/VBoxContainer/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="ScreenPanel/BoxPanel/VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]

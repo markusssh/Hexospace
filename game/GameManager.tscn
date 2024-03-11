@@ -1,0 +1,77 @@
+[gd_scene load_steps=14 format=3 uid="uid://cq3fknkneg7w1"]
+
+[ext_resource type="Script" path="res://game/game_manager.gd" id="1_gogm2"]
+[ext_resource type="PackedScene" uid="uid://co6dqnc3xvfdd" path="res://game/gui/menu/esc_menu/EscMenuScene.tscn" id="3_o72uj"]
+[ext_resource type="Texture2D" uid="uid://rbgmwhddn6yj" path="res://game/terrain_grid.png" id="3_x07r4"]
+[ext_resource type="Texture2D" uid="uid://c2xjy2645v18w" path="res://game/unit_grid.png" id="4_5tuau"]
+[ext_resource type="Texture2D" uid="uid://gvxgcajwr4sv" path="res://game/hex_grid.png" id="4_ax4pr"]
+[ext_resource type="Script" path="res://game/game_camera.gd" id="4_qoa1l"]
+[ext_resource type="Script" path="res://game/world_map.gd" id="6_qxs7c"]
+[ext_resource type="Script" path="res://game/debug_mode.gd" id="6_vgxik"]
+[ext_resource type="Script" path="res://game/tile_handler.gd" id="7_uqn8y"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_2urds"]
+resource_name = "terrain_grid"
+texture = ExtResource("3_x07r4")
+texture_region_size = Vector2i(128, 128)
+0:0/next_alternative_id = 14
+0:0/0 = 0
+1:0/next_alternative_id = 2
+1:0/0 = 0
+1:0/0/custom_data_0 = 1
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6kya1"]
+texture = ExtResource("4_ax4pr")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8s2yj"]
+resource_name = "unit_grid"
+texture = ExtResource("4_5tuau")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_wnnbk"]
+tile_shape = 3
+tile_size = Vector2i(127, 127)
+terrain_set_0/mode = 0
+custom_data_layer_0/name = "type"
+custom_data_layer_0/type = 2
+sources/0 = SubResource("TileSetAtlasSource_2urds")
+sources/1 = SubResource("TileSetAtlasSource_6kya1")
+sources/2 = SubResource("TileSetAtlasSource_8s2yj")
+
+[node name="GameManager" type="Node2D" node_paths=PackedStringArray("esc_menu_scene", "world_map", "camera")]
+process_mode = 3
+script = ExtResource("1_gogm2")
+esc_menu_scene = NodePath("GUI/EscMenuScene")
+world_map = NodePath("WorldMap")
+camera = NodePath("GameCamera")
+
+[node name="GameCamera" type="Camera2D" parent="."]
+unique_name_in_owner = true
+process_mode = 1
+position = Vector2(576, 324)
+script = ExtResource("4_qoa1l")
+
+[node name="WorldMap" type="TileMap" parent="."]
+unique_name_in_owner = true
+process_mode = 1
+position = Vector2(-1, 0)
+tile_set = SubResource("TileSet_wnnbk")
+format = 2
+script = ExtResource("6_qxs7c")
+
+[node name="GUI" type="CanvasLayer" parent="."]
+process_mode = 3
+
+[node name="EscMenuScene" parent="GUI" instance=ExtResource("3_o72uj")]
+unique_name_in_owner = true
+
+[node name="debug_mode" type="Label" parent="GUI"]
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("6_vgxik")
+
+[node name="TileHandler" type="Node" parent="."]
+script = ExtResource("7_uqn8y")
