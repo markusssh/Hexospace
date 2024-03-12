@@ -44,8 +44,8 @@ terrain_set_0/mode = 0
 custom_data_layer_0/name = "is_water"
 custom_data_layer_0/type = 1
 sources/0 = SubResource("TileSetAtlasSource_2urds")
-sources/3 = SubResource("TileSetAtlasSource_8s2yj")
-sources/2 = SubResource("TileSetAtlasSource_6kya1")
+sources/1 = SubResource("TileSetAtlasSource_6kya1")
+sources/2 = SubResource("TileSetAtlasSource_8s2yj")
 
 [node name="GameManager" type="Node2D" node_paths=PackedStringArray("esc_menu_scene", "world_map", "camera")]
 process_mode = 3
