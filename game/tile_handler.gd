@@ -5,6 +5,10 @@ extends Node
 @onready var camera : Camera2D = %GameCamera
 @onready var world_map : TileMap = %WorldMap
 
+var coord_max : Vector2i
+
+func _ready():
+	coord_max = world_map.COORD_MAX
 
 func get_pointed_coord() -> Vector2i:
 	var zoom = camera.zoom
@@ -16,26 +20,47 @@ func get_pointed_coord() -> Vector2i:
 	var hex_pointed_at = world_map.local_to_map(pointed_coord)
 	return hex_pointed_at
 	
-	
+# https://disk.yandex.ru/i/QxydaetwDZbGIQ
 func get_ring(cell : Vector2i, rad : int = 1) -> Array:
-	var res : Array
-	var grid_size : int = 2 * rad + 1
-	var center_coord : int = (grid_size - 1) / 2
-	var center : Vector2i = Vector2i(center_coord, center_coord)
-	for i in range(grid_size):
-		for j in range(grid_size):
-			var local_cell : Vector2i = Vector2i(i, j)
-			var on_h_border = abs(grid_size - 1 - local_cell.x) == grid_size - 1
-			var on_v_border = abs(grid_size - 1 - local_cell.y) == grid_size - 1
-			var is_border_local_cell : bool = on_h_border or on_v_border
-			var is_corner_local_cell : bool = abs(local_cell - center) != center
-			if is_border_local_cell and !is_corner_local_cell:
-				pass
-	return []
+	if rad < 1:
+		return []
+	var ring : Array
+	var diag : int = 2 * rad
+	var center : Vector2i = Vector2i(rad, rad)
+	# getting ring cells with local coords
+	# r, q - axial coords
+	for r in range(diag + 1):
+		for q in range(diag + 1):
+			var left_null_corner : bool = r + q < rad
+			var right_null_corner : bool = r + q > diag + rad
+			var is_in_null_zone : bool = left_null_corner or right_null_corner
+			var is_on_border : bool = r == 0 or q == 0 or r == diag or q == diag
+			var left_diagonal : bool = r + q == rad
+			var right_diagonal : bool = r + q == diag + rad
+			var is_on_diagonal : bool = left_diagonal or right_diagonal
+			if !is_in_null_zone and (is_on_border or is_on_diagonal):
+				# getting cubic coords 
+				var y : int = cell.y + r - rad
+				var z : int = q + (r - (y % 2)) / 2
+				# костыль?))))))))))
+				var k : int = 0
+				if cell.y % 2 == 0:
+					if r == 0:
+						k = -1 * (rad % 2)
+				else:
+					if r == 0:
+						k = 0 if rad % 2 == 1 else -1
+					if rad % 2 == 0:
+						k += 1
+				k = k - rad / 2
+				# костыль-end)))))))
+				var x : int = cell.x + z - rad + k
+				if x >= 0 and y >= 0 and x < coord_max.x and y < coord_max.y:
+					ring.append(Vector2i(x, y))
+	return ring
 
 
 func _cell_exists(cell : Vector2i) -> bool:
-	var coord_max = world_map.COORD_MAX
 	var not_below_bottom_range = cell.x >= 0 and cell.y >= 0
 	var not_above_top_range = cell.x <= coord_max.x and cell.y <= coord_max.y
 	return not_below_bottom_range and not_above_top_range

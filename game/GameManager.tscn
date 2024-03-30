@@ -54,6 +54,10 @@ esc_menu_scene = NodePath("GUI/EscMenuScene")
 world_map = NodePath("WorldMap")
 camera = NodePath("GameCamera")
 
+[node name="TileHandler" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("7_uqn8y")
+
 [node name="GameCamera" type="Camera2D" parent="."]
 unique_name_in_owner = true
 process_mode = 1
@@ -79,6 +83,4 @@ offset_right = 40.0
 offset_bottom = 23.0
 script = ExtResource("6_vgxik")
 
-[node name="TileHandler" type="Node" parent="."]
-unique_name_in_owner = true
-script = ExtResource("7_uqn8y")
+[connection signal="ready" from="WorldMap" to="WorldMap" method="_on_ready"]

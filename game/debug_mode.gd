@@ -1,5 +1,4 @@
 extends Label
 
-
-@onready var tile_handler : TileHandler =  %TileHandler
-@onready var world_map : TileMap =  %WorldMap
+func _process(delta):
+	text = str(%TileHandler.get_pointed_coord())

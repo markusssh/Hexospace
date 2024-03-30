@@ -40,9 +40,11 @@ const PLAINS_TEMPERATURE = 0.19
 const GRASSLAND_TEMPERATURE = -0.1
 const TUNDRA_TEMPERATURE = -0.4
 
+# % of the map
 const COLD_ZONE = 0.15
 const HOT_ZONE = 0.15
 
+# layer index
 const _terrain_grid = 0
 const _subterrain_grid = 1
 const _hex_grid = 2
@@ -64,39 +66,34 @@ func _ready():
 	set_layer_name(_subterrain_grid, "Subterrain")
 	
 	add_layer(_hex_grid)
-	set_layer_enabled(_hex_grid, true)
+	set_layer_enabled(_hex_grid, false)
 	set_layer_name(_hex_grid, "Hex Grid")
 	
 	add_layer(_unit_grid)
 	set_layer_enabled(_unit_grid, false)
 	set_layer_name(_unit_grid, "Unit Grid")
 	
+
+func _on_ready() -> void:
 	var seed = randi()
+	print(str(seed))
 	_altitude.seed = seed
 	_temperature.seed = seed
+	
 	_generate_map()
-	_smooth_map()
+	_map_post_processing()
 	_generate_init_settler()
 	
 
 #region Initial_Generation
 func _generate_map() -> void:
-	for i in range(COORD_MAX.x):
-		for j in range(COORD_MAX.y):
-			var terrain_texture_coord = _generate_cell(i, j)
-			set_cell(
-				_terrain_grid,
-				 Vector2i(i, j),
-				 _terrain_grid,
-				 terrain_texture_coord
-			)
+	for i in range(COORD_MAX.y):
+		for j in range(COORD_MAX.x):
+			var terrain_texture_coord = _generate_cell(j, i)
+			var cell = Vector2i(j, i)
+			_set_cell_ter(cell, terrain_texture_coord)
 			#grid outline
-			set_cell(
-				_hex_grid,
-				 Vector2i(i, j),
-				 _hex_grid,
-				 Vector2i(0, 0)
-			)
+			#_set_cell_outline(cell)
 			
 
 func _generate_cell(x, y) -> Vector2i:
@@ -176,21 +173,122 @@ func _get_temperature_by_cell(cell : Vector2i) -> float:
 #endregion
 
 #region Smoothing
-func _smooth_map():
+func _map_post_processing():
 	_adjust_coastline()
+	_smooth_coastline()
+	_smooth_ocean()
+	_flatten_coastline()
 	
 
 func _adjust_coastline():
-	for i in range(COORD_MAX.x):
-		for j in range(COORD_MAX.y):
-			if get_cell_atlas_coords(
-				_terrain_grid,
-				 Vector2i(i, j),
-			) == TERRAIN_ATLAS_COORD[TERRAIN_TYPE.OCEAN]:
-				var rad_1 : Array
+	for i in range(COORD_MAX.y):
+		for j in range(COORD_MAX.x):
+			var cell : Vector2i = Vector2i(j, i)
+			if _cell_is_ocean(cell):
+				var ring : Array = tile_handler.get_ring(cell, 1)
+				var ring_has_terrain : bool = false
+				for ring_cell in ring:
+					if _cell_is_terrain(ring_cell):
+						ring_has_terrain = true
+						break
+				if ring_has_terrain:
+					_set_cell_ter(cell, TERRAIN_ATLAS_COORD[TERRAIN_TYPE.COAST])
 				
 
+func _smooth_coastline() -> void:
+	for i in range(COORD_MAX.y):
+		for j in range(COORD_MAX.x):
+			var cell : Vector2i = Vector2i(j, i)
+			if _cell_is_coast(cell):
+				var ring : Array = tile_handler.get_ring(cell, 1)
+				var same_tiles_count : int = 0
+				for ring_cell in ring:
+					if _cell_is_coast(ring_cell):
+						same_tiles_count += 1
+				if same_tiles_count > 4:
+					_set_cell_ter(cell, TERRAIN_ATLAS_COORD[TERRAIN_TYPE.COAST])
+					
+
+func _smooth_ocean() -> void:
+	for i in range(COORD_MAX.y):
+		for j in range(COORD_MAX.x):
+			var cell : Vector2i = Vector2i(j, i)
+			if _cell_is_ocean(cell):
+				var ring : Array = tile_handler.get_ring(cell, 1)
+				var coast_count : int = 0
+				for ring_cell in ring:
+					if _cell_is_coast(ring_cell):
+						coast_count += 1
+				if coast_count > 4:
+					_set_cell_ter(cell, TERRAIN_ATLAS_COORD[TERRAIN_TYPE.COAST])
+					
+
+func _flatten_coastline() -> void:
+	for i in range(COORD_MAX.y):
+		for j in range(COORD_MAX.x):
+			var cell : Vector2i = Vector2i(j, i)
+			if _cell_is_coast(cell):
+				var ring : Array = tile_handler.get_ring(cell, 1)
+				var ocean_count : int = 0
+				for ring_cell in ring:
+					if _cell_is_ocean(ring_cell):
+						ocean_count += 1
+				if ocean_count > 4:
+					_set_cell_ter(cell, TERRAIN_ATLAS_COORD[TERRAIN_TYPE.OCEAN])
+#endregion 
+
+
+#region Painting and Tracing
+func _set_cell_outline(cell : Vector2i) -> void:
+	set_cell(
+		_hex_grid,
+		cell,
+		_hex_grid,
+		Vector2i(0, 0)
+	)
+
+func _set_cell_ter(cell : Vector2i, atlas_coords : Vector2i) -> void:
+	set_cell(
+		_terrain_grid,
+		cell,
+		_terrain_grid,
+		atlas_coords
+	)
+
+
+func _set_ring_ter(ring : Array, atlas_coords : Vector2i) -> void:
+	for cell in ring:
+		_set_cell_ter(cell, atlas_coords)
+		
+		
+func _cell_is_coast(cell : Vector2i) -> bool:
+	return get_cell_atlas_coords(
+		_terrain_grid,
+		cell
+	) == TERRAIN_ATLAS_COORD[TERRAIN_TYPE.COAST]
+	
+
+func _cell_is_ocean(cell : Vector2i) -> bool:
+	return get_cell_atlas_coords(
+		_terrain_grid,
+		cell
+	) == TERRAIN_ATLAS_COORD[TERRAIN_TYPE.OCEAN]
+
+
+func _cell_is_terrain(cell : Vector2i) -> bool:
+	return get_cell_tile_data(
+		_terrain_grid,
+		cell
+	).get_custom_data("is_water") == false
 #endregion
+
+func _process(delta):
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		var center = tile_handler.get_pointed_coord()
+		var ring = tile_handler.get_ring(center, 1)
+		for cell in ring:
+			_set_cell_outline(cell)
+
 
 func _generate_init_settler() -> void:
 	var coord = _get_starting_spot()
